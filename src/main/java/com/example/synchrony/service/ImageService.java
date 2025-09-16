@@ -2,6 +2,7 @@ package com.example.synchrony.service;
 
 import com.example.synchrony.entity.ImageRecord;
 import com.example.synchrony.entity.UserAccount;
+import com.example.synchrony.events.ImageUploadedEvent;
 import com.example.synchrony.repo.ImageRecordRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,9 +14,12 @@ import java.util.List;
 public class ImageService {
     private final ImageRecordRepository repo;
     private final ImgurService imgur;
+    private final ImageEventPublisher publisher;   // <-- add
 
-    public ImageService(ImageRecordRepository repo, ImgurService imgur) {
-        this.repo = repo; this.imgur = imgur;
+    public ImageService(ImageRecordRepository repo, ImgurService imgur, ImageEventPublisher publisher) {
+        this.repo = repo;
+        this.imgur = imgur;
+        this.publisher = publisher;
     }
 
     @Transactional
@@ -26,7 +30,17 @@ public class ImageService {
         rec.setImgurId(up.id());
         rec.setLink(up.link());
         rec.setDeleteHash(up.deletehash());
-        return repo.save(rec);
+        rec = repo.save(rec);
+
+        // fire-and-forget event (don’t fail the request if Kafka is down)
+        try {
+            publisher.publish(new ImageUploadedEvent(
+                user.getId(), user.getUsername(), rec.getId(), rec.getImgurId(), rec.getLink(), rec.getCreatedAt()
+            ));
+        } catch (Exception ignore) {
+            // optionally log a warning here
+        }
+        return rec;
     }
 
     public List<ImageRecord> list(UserAccount user) {
