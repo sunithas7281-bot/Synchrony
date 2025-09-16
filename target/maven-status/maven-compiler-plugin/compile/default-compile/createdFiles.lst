@@ -1,0 +1,5 @@
+com\example\synchrony\dto\RegisterRequest.class
+com\example\synchrony\service\ImgurService$ImgurUpload.class
+com\example\synchrony\dto\UserResponse.class
+com\example\synchrony\service\ImgurService$1.class
+com\example\synchrony\dto\ImageResponse.class

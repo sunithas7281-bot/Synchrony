@@ -1,0 +1,8 @@
+echo target/> .gitignore
+echo *.class>> .gitignore
+echo *.log>> .gitignore
+echo *.iml>> .gitignore
+echo .idea/>> .gitignore
+echo .vscode/>> .gitignore
+echo .DS_Store>> .gitignore
+echo .mvn/wrapper/maven-wrapper.jar>> .gitignore
